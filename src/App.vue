@@ -12,7 +12,21 @@
 
         <main class="main">
             <div class="container">
-                <v-field>What's your question?</v-field>
+                <div class="form">
+                    <v-field 
+                        :value="question" 
+                        @input="data => question = data"
+                     >What's your question?
+                    </v-field>
+                    <v-field 
+                        :value="author" 
+                        @input="data => author = data"
+                    >Who are you?</v-field>
+                    <v-button 
+                        @click.native="send" 
+                        :disabled="question.trim('').length == false"
+                    >Send</v-button>
+                </div>
             </div>
         </main>
     </div>
@@ -20,11 +34,34 @@
 
 <script>
 import vField from './components/vField.vue';
+import vButton from './components/vButton.vue';
 
 export default {
     name: 'App',
     components: {
-        vField
+        vField,
+        vButton
+    },
+    data() {
+        return {
+            question: '',
+            author: ''
+        }
+    },
+    methods: {
+        send() {
+            if (this.question.trim('').length) {
+                const obj = {
+                    question: this.question,
+                    author: this.author || ''
+                }
+
+                console.log('Send', obj);
+
+                this.question = '';
+                this.author = '';
+            }
+        }
     }
 }
 </script>
@@ -89,6 +126,15 @@ h1,h2,h3,h4,h5,h6 {
     max-width: var(--container-width);
     padding: 0 var(--container-padding);
     margin: 0 auto;
+    width: 100%;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    // justify-content: start;
+    align-items: start;
+    gap: 15px;
     width: 100%;
 }
 
