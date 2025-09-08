@@ -24,7 +24,7 @@
                     >Who are you?</v-field>
                     <v-button 
                         @click.native="send" 
-                        :disabled="question.trim('').length == false"
+                        :disabled="(question.trim('').length == false) || (isSending == true)"
                     >Send</v-button>
                 </div>
             </div>
@@ -36,6 +36,9 @@
 import vField from './components/vField.vue';
 import vButton from './components/vButton.vue';
 
+import { db } from './firebase/index';
+import { doc, setDoc } from 'firebase/firestore';
+
 export default {
     name: 'App',
     components: {
@@ -45,21 +48,34 @@ export default {
     data() {
         return {
             question: '',
-            author: ''
+            author: '',
+            isSending: false
         }
     },
     methods: {
-        send() {
-            if (this.question.trim('').length) {
-                const obj = {
-                    question: this.question,
-                    author: this.author || ''
+        async send() {
+            try {
+                if (this.question.trim('').length) {
+                    this.isSending = true;
+
+                    const obj = {
+                        question: this.question,
+                        author: this.author || ''
+                    }
+
+                    console.log('Send', obj);
+
+                    const docRef = doc(db, 'questions', 'ID');
+                    await setDoc(docRef, obj);
+
+                    this.question = '';
+                    this.author = '';
+
+                    this.isSending = false;
                 }
-
-                console.log('Send', obj);
-
-                this.question = '';
-                this.author = '';
+            } catch(error) {
+                console.log('Send error');
+                throw error;
             }
         }
     }
